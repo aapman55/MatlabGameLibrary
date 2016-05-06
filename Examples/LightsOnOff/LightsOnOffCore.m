@@ -152,9 +152,10 @@ classdef LightsOnOffCore < handle
                     clickedIndex = obj.gameMatrixButtons.checkButtons( obj.window.mouseX,...
                                                                obj.window.height - obj.window.mouseY,...
                                                                clicked);                                                           
-                
-                    obj.clickAction(floor((clickedIndex-1)/obj.Rows)+1,rem(clickedIndex-1,obj.Rows)+1);
-                    obj.updateLightButtons();
+                    if (clickedIndex > 0)
+                        obj.clickAction(floor((clickedIndex-1)/obj.Rows)+1,rem(clickedIndex-1,obj.Rows)+1);
+                        obj.updateLightButtons();
+                    end
                 end
                 
                 obj.gameMatrixButtons.drawAll();
