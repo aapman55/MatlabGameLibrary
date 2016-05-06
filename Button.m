@@ -108,16 +108,22 @@ classdef Button < handle
             Y = obj.y+obj.height/2;
             if obj.mouseOver
                 obj.gl.rectangle(obj.x, obj.y, obj.x+obj.width, obj.y+obj.height, obj.mouseOverColor);
-                text(X,Y,obj.mouseOverText,'Color',obj.mouseOverTextColor,'HorizontalAlignment','center',...
+                if (~isempty(obj.mouseOverText))
+                    text(X,Y,obj.mouseOverText,'Color',obj.mouseOverTextColor,'HorizontalAlignment','center',...
                     'fontSize',obj.fontSize);
+                end
             elseif obj.isClicked
                 obj.gl.rectangle(obj.x, obj.y, obj.x+obj.width, obj.y+obj.height, obj.selectedColor);
-                text(X,Y,obj.selectedText,'Color',obj.selectedTextColor,'HorizontalAlignment','center',...
+                if (~isempty(obj.selectedText))
+                    text(X,Y,obj.selectedText,'Color',obj.selectedTextColor,'HorizontalAlignment','center',...
                     'fontSize',obj.fontSize);
+                end
             else
                 obj.gl.rectangle(obj.x, obj.y, obj.x+obj.width, obj.y+obj.height, obj.normalColor);
-                text(X,Y,obj.normalText,'Color',obj.normalTextColor,'HorizontalAlignment','center',...
+                if (~isempty(obj.normalText))
+                    text(X,Y,obj.normalText,'Color',obj.normalTextColor,'HorizontalAlignment','center',...
                     'fontSize',obj.fontSize);
+                end
             end
         end
         
