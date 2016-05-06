@@ -91,6 +91,8 @@ classdef LightsOnOffCore < handle
                         obj.goToNextLevel();
                     case GameStates.GAMEOVER
                         obj.finishGame();
+                    case GameStates.HIGHSCORE
+                        obj.showScore();
                 end                        
                
                 obj.window.update();
@@ -98,6 +100,21 @@ classdef LightsOnOffCore < handle
             
             % Clean up
             obj.window.destroyWindow();
+        end
+        
+        %===============================
+        % Show highscores (actually low scores)
+        %===============================
+        function showScore(obj)
+            text(   obj.window.width/2,...
+                    obj.window.height/2,...
+                    ['Best Score: ',num2str(obj.bestScore)],...
+                    'HorizontalAlignment','center',...
+                    'fontSize',60)
+                
+             if (obj.window.hasClicked())
+                 obj.gameState = GameStates.MAINMENU;
+             end
         end
         
         %===============================
@@ -206,6 +223,8 @@ classdef LightsOnOffCore < handle
                obj.resetGame(); 
                obj.goToNextLevel();
 
+            elseif (pressedIndex == 2)
+                obj.gameState = GameStates.HIGHSCORE;
             elseif (pressedIndex == 4)
                 obj.window.isCloseRequested = 1;
                 % save highscore
