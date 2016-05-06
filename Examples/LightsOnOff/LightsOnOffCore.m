@@ -26,9 +26,9 @@ classdef LightsOnOffCore < handle
             
             % Build main menu
             buttonWidth = 400;
-            buttonHeight = 100;
+            buttonHeight = 50;
             tempX = obj.window.width/2 - buttonWidth/2;       %
-            start = Button(tempX, 3*buttonHeight, buttonWidth, buttonHeight);
+            start = Button(tempX, 4*buttonHeight, buttonWidth, buttonHeight);
             start.setAllTexts('START');
             start.setFontSize(35);
             start.setAllTextColors(1,1,1);
@@ -36,7 +36,23 @@ classdef LightsOnOffCore < handle
             start.setAllColors(0,0,0);
             start.setNormalColor(1,1,1);
             
-            exit  = Button(tempX, 5* buttonHeight, buttonWidth, buttonHeight);
+            scoreScreen = Button(tempX, 6*buttonHeight, buttonWidth, buttonHeight);
+            scoreScreen.setAllTexts('BEST SCORES');
+            scoreScreen.setFontSize(35);
+            scoreScreen.setAllTextColors(1,1,1);
+            scoreScreen.setNormalTextColor(0,0,0);
+            scoreScreen.setAllColors(0,0,0);
+            scoreScreen.setNormalColor(1,1,1);
+            
+            helpscreen = Button(tempX, 8*buttonHeight, buttonWidth, buttonHeight);
+            helpscreen.setAllTexts('HELP');
+            helpscreen.setFontSize(35);
+            helpscreen.setAllTextColors(1,1,1);
+            helpscreen.setNormalTextColor(0,0,0);
+            helpscreen.setAllColors(0,0,0);
+            helpscreen.setNormalColor(1,1,1);
+            
+            exit  = Button(tempX, 10* buttonHeight, buttonWidth, buttonHeight);
             exit.setAllTexts('EXIT');
             exit.setFontSize(35);
             exit.setAllTextColors(1,1,1);
@@ -46,6 +62,8 @@ classdef LightsOnOffCore < handle
             
             obj.mainMenu = ButtonList();
             obj.mainMenu.add(start);
+            obj.mainMenu.add(scoreScreen);
+            obj.mainMenu.add(helpscreen);
             obj.mainMenu.add(exit);
             
             obj.gameMatrixButtons = ButtonList();
@@ -64,6 +82,8 @@ classdef LightsOnOffCore < handle
                         obj.inGameLoop();
                     case GameStates.NEXTLEVEL
                         obj.goToNextLevel();
+                    case GameStates.GAMEOVER
+                        obj.finishGame();
                 end                        
                
                 obj.window.update();
@@ -74,14 +94,37 @@ classdef LightsOnOffCore < handle
         end
         
         %===============================
+        % Finish game
+        %===============================
+        function finishGame(obj)
+            
+            text(obj.window.width/2, obj.window.height/2,   'Success!',...
+                                                            'HorizontalAlign','center',...
+                                                            'VerticalAlign','middle',...
+                                                            'fontSize',100);
+            text(obj.window.width/2, obj.window.height/4*3,   'Press m to continue',...
+                                                            'HorizontalAlign','center',...
+                                                            'VerticalAlign','middle',...
+                                                            'fontSize',35);
+            if (obj.window.getKeyDown('m'))
+                obj.resetGame();
+                obj.gameState = GameStates.MAINMENU;
+            end
+        end
+        %===============================
         % Next level routine
         %===============================
         function goToNextLevel(obj)
             % Increase level
             obj.currentLevel = obj.currentLevel + 1;
             
+            if (obj.currentLevel > 21)
+                obj.gameState = GameStates.GAMEOVER;
+                return;
+            end
+            
             % Determine Rows, Cols and shuffles
-            size = 3 + floor(obj.currentLevel/6);
+            size = 3 + floor((obj.currentLevel-1)/5);
             
             % Set rows and cols
             obj.Rows = size;
@@ -153,7 +196,7 @@ classdef LightsOnOffCore < handle
                obj.resetGame(); 
                obj.goToNextLevel();
 
-            elseif (pressedIndex == 2)
+            elseif (pressedIndex == 4)
                 obj.window.isCloseRequested = 1;
             end
         end
@@ -165,16 +208,7 @@ classdef LightsOnOffCore < handle
             
            
             % Check success
-            if (obj.checkWin())
-                text(obj.window.width/2, obj.window.height/2,   'Success!',...
-                                                                'HorizontalAlign','center',...
-                                                                'VerticalAlign','middle',...
-                                                                'fontSize',100);
-                text(obj.window.width/2, obj.window.height/4*3,   'Press m to continue',...
-                                                                'HorizontalAlign','center',...
-                                                                'VerticalAlign','middle',...
-                                                                'fontSize',35);
-                
+            if (obj.checkWin())              
                 
                 obj.gameState = GameStates.NEXTLEVEL;
                 obj.window.clearInputEvents();
