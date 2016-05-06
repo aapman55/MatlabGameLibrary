@@ -1,4 +1,6 @@
-5x5 look up table
+# Lights on look up tables
+
+## 5x5 look up table
 
 
 | Left on bottom row | Push on top row |
@@ -11,9 +13,3 @@
 | 2, 4               |            1, 4 |
 | 3, 4, 5            |               4 |
 
-
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
