@@ -107,7 +107,7 @@ classdef LightsOnOffCore < handle
                 % beginY
                 beginY = obj.window.height/2 - totalHeight/2;
                 
-                % Generate buttons
+                % Generate light buttons
                 for j=1:obj.Cols
                     for i=1:obj.Rows                    
                         tempButton = Button(beginX+(j-1)*buttonSize,...
@@ -118,6 +118,17 @@ classdef LightsOnOffCore < handle
                         obj.gameMatrixButtons.add(tempButton);
                     end                    
                 end
+                
+                % Generate give up button
+                tempButton = Button(obj.window.width-200,...
+                                    obj.window.height-50,...
+                                    200,...
+                                    50);
+                tempButton.setAllTexts('GIVE UP!')
+                tempButton.setAllColors(1,1,1);
+                
+                obj.gameMatrixButtons.add(tempButton);
+                
                 obj.updateLightButtons();
 
             elseif (pressedIndex == 2)
@@ -151,11 +162,17 @@ classdef LightsOnOffCore < handle
                 if (clicked)
                     clickedIndex = obj.gameMatrixButtons.checkButtons( obj.window.mouseX,...
                                                                obj.window.height - obj.window.mouseY,...
-                                                               clicked);                                                           
-                    if (clickedIndex > 0)
+                                                               clicked); 
+                    % Light buttons action
+                    if (clickedIndex > 0 && clickedIndex <= obj.Rows*obj.Cols)
                         obj.clickAction(floor((clickedIndex-1)/obj.Rows)+1,rem(clickedIndex-1,obj.Rows)+1);
                         obj.updateLightButtons();
+                    % The give up button
+                    elseif (clickedIndex == obj.Rows*obj.Cols+1)
+                        obj.gameState = GameStates.MAINMENU;
+                        obj.window.clearInputEvents();
                     end
+                    
                 end
                 
                 obj.gameMatrixButtons.drawAll();
