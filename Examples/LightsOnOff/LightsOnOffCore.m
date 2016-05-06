@@ -12,6 +12,8 @@ classdef LightsOnOffCore < handle
         Cols = 5;               % Default number of columns
         currentLevel = 0;       % Variable to keep track of the level
         totalClicks = 0;        % Keep track of the c=amount of clicks
+        bestScore = 9999;       % Best score
+        maxLevels = 20;         % Maximum amount of Levels
     end
     
     methods
@@ -67,6 +69,11 @@ classdef LightsOnOffCore < handle
             obj.mainMenu.add(exit);
             
             obj.gameMatrixButtons = ButtonList();
+            
+            if(exist('bestscore','file'))
+                obj.bestScore = load('bestscore');
+            end
+            
         end
         
         %================================
@@ -107,6 +114,9 @@ classdef LightsOnOffCore < handle
                                                             'VerticalAlign','middle',...
                                                             'fontSize',35);
             if (obj.window.getKeyDown('m'))
+                if (obj.totalClicks < obj.bestScore)
+                    obj.bestScore = obj.totalClicks;
+                end
                 obj.resetGame();
                 obj.gameState = GameStates.MAINMENU;
             end
@@ -118,7 +128,7 @@ classdef LightsOnOffCore < handle
             % Increase level
             obj.currentLevel = obj.currentLevel + 1;
             
-            if (obj.currentLevel > 21)
+            if (obj.currentLevel > obj.maxLevels)
                 obj.gameState = GameStates.GAMEOVER;
                 return;
             end
@@ -198,6 +208,8 @@ classdef LightsOnOffCore < handle
 
             elseif (pressedIndex == 4)
                 obj.window.isCloseRequested = 1;
+                % save highscore
+                dlmwrite('bestscore',obj.bestScore);
             end
         end
         
