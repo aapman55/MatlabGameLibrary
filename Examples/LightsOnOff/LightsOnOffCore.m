@@ -10,6 +10,8 @@ classdef LightsOnOffCore < handle
         mainMenu;               % ButtonList object
         Rows = 5;               % Default number of rows
         Cols = 5;               % Default number of columns
+        currentLevel = 0;       % Variable to keep track of the level
+        totalClicks = 0;        % Keep track of the c=amount of clicks
     end
     
     methods
@@ -60,6 +62,8 @@ classdef LightsOnOffCore < handle
                         obj.mainMenuLoop();
                     case GameStates.INGAME
                         obj.inGameLoop();
+                    case GameStates.NEXTLEVEL
+                        obj.goToNextLevel();
                 end                        
                
                 obj.window.update();
@@ -67,6 +71,63 @@ classdef LightsOnOffCore < handle
             
             % Clean up
             obj.window.destroyWindow();
+        end
+        
+        %===============================
+        % Next level routine
+        %===============================
+        function goToNextLevel(obj)
+            % Increase level
+            obj.currentLevel = obj.currentLevel + 1;
+            
+            % Determine Rows, Cols and shuffles
+            size = 3 + floor(obj.currentLevel/6);
+            
+            % Set rows and cols
+            obj.Rows = size;
+            obj.Cols = size;
+            
+            obj.gameState = GameStates.INGAME;
+            % Create a clean light matrix
+            obj.createMatrix(obj.Cols,obj.Rows);
+            % Shuffle matrix
+            obj.shuffleMatrix(obj.currentLevel);
+            % Clear game Lights list
+            obj.gameMatrixButtons.clear();
+            % Calculate button size
+            buttonSize = min(obj.window.width/obj.Cols,obj.window.height/obj.Rows);
+            % Total height
+            totalHeight = obj.Rows * buttonSize;
+            % Total width
+            totalWidth = obj.Cols * buttonSize;
+            % beginX
+            beginX = obj.window.width/2 - totalWidth /2;
+            % beginY
+            beginY = obj.window.height/2 - totalHeight/2;
+
+            % Generate light buttons
+            for j=1:obj.Cols
+                for i=1:obj.Rows                    
+                    tempButton = Button(beginX+(j-1)*buttonSize,...
+                                        beginY+(i-1)*buttonSize,...
+                                        buttonSize,...
+                                        buttonSize);
+                    % Add to list
+                    obj.gameMatrixButtons.add(tempButton);
+                end                    
+            end
+
+            % Generate give up button
+            tempButton = Button(obj.window.width-200,...
+                                obj.window.height-50,...
+                                200,...
+                                50);
+            tempButton.setAllTexts('GIVE UP!')
+            tempButton.setAllColors(1,1,1);
+
+            obj.gameMatrixButtons.add(tempButton);
+
+            obj.updateLightButtons();
         end
         
         %================================
@@ -89,47 +150,8 @@ classdef LightsOnOffCore < handle
             
             % When the start button is clicked
             if (pressedIndex == 1)
-                obj.gameState = GameStates.INGAME;
-                % Create a clean light matrix
-                obj.createMatrix(obj.Cols,obj.Rows);
-                % Shuffle matrix
-                obj.shuffleMatrix(5);
-                % Clear game Lights list
-                obj.gameMatrixButtons.clear();
-                % Calculate button size
-                buttonSize = min(obj.window.width/obj.Cols,obj.window.height/obj.Rows);
-                % Total height
-                totalHeight = obj.Rows * buttonSize;
-                % Total width
-                totalWidth = obj.Cols * buttonSize;
-                % beginX
-                beginX = obj.window.width/2 - totalWidth /2;
-                % beginY
-                beginY = obj.window.height/2 - totalHeight/2;
-                
-                % Generate light buttons
-                for j=1:obj.Cols
-                    for i=1:obj.Rows                    
-                        tempButton = Button(beginX+(j-1)*buttonSize,...
-                                            beginY+(i-1)*buttonSize,...
-                                            buttonSize,...
-                                            buttonSize);
-                        % Add to list
-                        obj.gameMatrixButtons.add(tempButton);
-                    end                    
-                end
-                
-                % Generate give up button
-                tempButton = Button(obj.window.width-200,...
-                                    obj.window.height-50,...
-                                    200,...
-                                    50);
-                tempButton.setAllTexts('GIVE UP!')
-                tempButton.setAllColors(1,1,1);
-                
-                obj.gameMatrixButtons.add(tempButton);
-                
-                obj.updateLightButtons();
+               obj.resetGame(); 
+               obj.goToNextLevel();
 
             elseif (pressedIndex == 2)
                 obj.window.isCloseRequested = 1;
@@ -153,10 +175,10 @@ classdef LightsOnOffCore < handle
                                                                 'VerticalAlign','middle',...
                                                                 'fontSize',35);
                 
-                if (obj.window.getKeyDown('m'))
-                    obj.gameState = GameStates.MAINMENU;
-                    obj.window.clearInputEvents();
-                end
+                
+                obj.gameState = GameStates.NEXTLEVEL;
+                obj.window.clearInputEvents();
+                
             else
                 clicked = obj.window.hasClicked();
                 if (clicked)
@@ -167,6 +189,7 @@ classdef LightsOnOffCore < handle
                     if (clickedIndex > 0 && clickedIndex <= obj.Rows*obj.Cols)
                         obj.clickAction(floor((clickedIndex-1)/obj.Rows)+1,rem(clickedIndex-1,obj.Rows)+1);
                         obj.updateLightButtons();
+                        obj.totalClicks = obj.totalClicks +1;
                     % The give up button
                     elseif (clickedIndex == obj.Rows*obj.Cols+1)
                         obj.gameState = GameStates.MAINMENU;
@@ -176,7 +199,33 @@ classdef LightsOnOffCore < handle
                 end
                 
                 obj.gameMatrixButtons.drawAll();
+                text(obj.window.width-200, 0,...
+                     ['Level: ',num2str(obj.currentLevel)],...
+                     'HorizontalAlignment','left',...
+                     'VerticalAlignment','top',...
+                     'fontSize',35);
+                 
+                 text(obj.window.width-200, 300,...
+                     'Clicks: ',...
+                     'HorizontalAlignment','left',...
+                     'VerticalAlignment','top',...
+                     'fontSize',35);
+                 
+                 text(obj.window.width, 350,...
+                     num2str(obj.totalClicks),...
+                     'HorizontalAlignment','right',...
+                     'VerticalAlignment','top',...
+                     'fontSize',35);
+                 
             end
+        end
+        
+        %================================
+        % Reset the game
+        %================================
+        function resetGame(obj)
+            obj.currentLevel = 0;
+            obj.totalClicks = 0;
         end
         
         %================================
