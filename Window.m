@@ -63,7 +63,6 @@ classdef Window < handle
             
             % Reverse the Y-axis (to match with the openGL implementation)
             set(gca,'Ydir','reverse');
-            
             %======================================
             % Define callbakc functions
             %======================================
